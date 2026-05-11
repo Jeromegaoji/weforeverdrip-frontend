@@ -1,9 +1,10 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
+import Link from "next/link";
 import Navbar from "../components/Navbar";
 
-// FIX (Bug 2): Updated BASE_URL from Railway → Render
 const BASE_URL = "https://weforeverdrip-backend-1.onrender.com";
+const FETCH_TIMEOUT_MS = 10_000; // 10 seconds
 
 const IMAGE_FALLBACKS = {
   "regular-white-tee": "/whiteshirt.JPEG",
@@ -37,45 +38,71 @@ export default function ProductsPage() {
     return () => window.removeEventListener("mousemove", move);
   }, []);
 
-  // FIX (Bug 2): Updated fetch URL from Railway → Render
+  // FIX: Added AbortController with 10s timeout + cleanup on unmount
   useEffect(() => {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), FETCH_TIMEOUT_MS);
+
     const fetchCategories = async () => {
       try {
         const response = await fetch(
           `${BASE_URL}/api/v1/products/categories/`,
+          { signal: controller.signal }
         );
         if (!response.ok) throw new Error("Failed to fetch categories");
         const data = await response.json();
         setCategories(data);
       } catch (err) {
-        console.error("Error fetching categories:", err);
+        if (err.name !== "AbortError") {
+          console.error("Error fetching categories:", err);
+        }
+      } finally {
+        clearTimeout(timer);
       }
     };
+
     fetchCategories();
+    return () => {
+      clearTimeout(timer);
+      controller.abort();
+    };
   }, []);
 
-  // FIX (Bug 2): Updated fetch URL from Railway → Render
+  // FIX: Added AbortController with 10s timeout + cleanup on unmount/re-run
   useEffect(() => {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), FETCH_TIMEOUT_MS);
+
     const fetchProducts = async () => {
       try {
         setLoading(true);
+        setError(null);
         let url = `${BASE_URL}/api/v1/products/`;
         if (selectedCategory) {
           url += `?category=${selectedCategory}`;
         }
-        const response = await fetch(url);
-        if (!response.ok) throw new Error("Failed to fetch products");
+        const response = await fetch(url, { signal: controller.signal });
+        if (!response.ok) throw new Error("Server error — please try again");
         const data = await response.json();
         setProducts(data.results || data);
-        setError(null);
       } catch (err) {
-        setError(err.message);
+        if (err.name === "AbortError") {
+          setError("Request timed out. The server may be waking up — try again in a moment.");
+        } else {
+          setError(err.message);
+        }
         setProducts([]);
       } finally {
         setLoading(false);
+        clearTimeout(timer);
       }
     };
+
     fetchProducts();
+    return () => {
+      clearTimeout(timer);
+      controller.abort();
+    };
   }, [selectedCategory]);
 
   const getProductImage = (product) => {
@@ -83,16 +110,12 @@ export default function ProductsPage() {
       const primary = product.images.find((img) => img.is_primary);
       const imageUrl = primary ? primary.image : product.images[0].image;
       if (imageUrl) {
-        // FIX (Bug 2): Prepends correct Render BASE_URL for relative /media/ paths
         return imageUrl.startsWith("http") ? imageUrl : `${BASE_URL}${imageUrl}`;
       }
     }
     return IMAGE_FALLBACKS[product.slug] || "/whiteshirt.JPEG";
   };
 
-  // FIX (Bug 1): Derive stock status from variants — the API has no product-level in_stock field.
-  // A product is "available" if it has at least one variant with stock_quantity > 0.
-  // The variant's `in_stock` boolean property handles this check server-side.
   const isProductAvailable = (product) => {
     if (!product.variants || product.variants.length === 0) return false;
     return product.variants.some((v) => v.in_stock);
@@ -157,14 +180,12 @@ export default function ProductsPage() {
               transition: "all 0.3s",
             }}
             onMouseEnter={(e) => {
-              if (selectedCategory !== null) {
+              if (selectedCategory !== null)
                 e.currentTarget.style.background = "#222";
-              }
             }}
             onMouseLeave={(e) => {
-              if (selectedCategory !== null) {
+              if (selectedCategory !== null)
                 e.currentTarget.style.background = "transparent";
-              }
             }}
           >
             All
@@ -188,14 +209,12 @@ export default function ProductsPage() {
                 transition: "all 0.3s",
               }}
               onMouseEnter={(e) => {
-                if (selectedCategory !== cat.slug) {
+                if (selectedCategory !== cat.slug)
                   e.currentTarget.style.background = "#222";
-                }
               }}
               onMouseLeave={(e) => {
-                if (selectedCategory !== cat.slug) {
+                if (selectedCategory !== cat.slug)
                   e.currentTarget.style.background = "transparent";
-                }
               }}
             >
               {cat.name}
@@ -206,12 +225,7 @@ export default function ProductsPage() {
         {/* LOADING STATE */}
         {loading && (
           <div style={{ textAlign: "center", padding: "4rem" }}>
-            <p
-              style={{
-                fontFamily: "var(--font-barlow-condensed)",
-                fontSize: "1rem",
-              }}
-            >
+            <p style={{ fontFamily: "var(--font-barlow-condensed)", fontSize: "1rem" }}>
               Loading...
             </p>
           </div>
@@ -219,21 +233,27 @@ export default function ProductsPage() {
 
         {/* ERROR STATE */}
         {error && (
-          <div
-            style={{
-              textAlign: "center",
-              padding: "4rem",
-              color: "var(--red)",
-            }}
-          >
-            <p
+          <div style={{ textAlign: "center", padding: "4rem", color: "var(--red)" }}>
+            <p style={{ fontFamily: "var(--font-barlow-condensed)", fontSize: "1rem" }}>
+              {error}
+            </p>
+            <button
+              onClick={() => setSelectedCategory(selectedCategory)}
               style={{
+                marginTop: "1.5rem",
                 fontFamily: "var(--font-barlow-condensed)",
-                fontSize: "1rem",
+                fontSize: "0.85rem",
+                letterSpacing: "0.2em",
+                textTransform: "uppercase",
+                border: "1px solid var(--cream)",
+                background: "transparent",
+                color: "var(--cream)",
+                padding: "0.75rem 2rem",
+                cursor: "pointer",
               }}
             >
-              Failed to load products
-            </p>
+              Retry
+            </button>
           </div>
         )}
 
@@ -248,7 +268,6 @@ export default function ProductsPage() {
             }}
           >
             {products.map((product) => {
-              // FIX (Bug 1): Compute availability once per product render
               const available = isProductAvailable(product);
 
               return (
@@ -260,7 +279,6 @@ export default function ProductsPage() {
                     overflow: "hidden",
                     cursor: "pointer",
                     transition: "transform 0.3s, box-shadow 0.3s",
-                    // FIX (Bug 1): Visually dim sold-out cards
                     opacity: available ? 1 : 0.6,
                   }}
                   onMouseEnter={(e) => {
@@ -292,7 +310,6 @@ export default function ProductsPage() {
                         objectPosition: "center",
                       }}
                     />
-                    {/* FIX (Bug 1): Sold-out badge overlaid on image */}
                     {!available && (
                       <div
                         style={{
@@ -344,11 +361,12 @@ export default function ProductsPage() {
                           })
                         : "Price TBA"}
                     </p>
-                    <a
+
+                    {/* FIX: <Link> instead of <a> — no full page reload */}
+                    <Link
                       href={`/products/${product.slug}`}
                       style={{
                         display: "block",
-                        // FIX (Bug 1): Grey out CTA for sold-out items
                         background: available ? "var(--red)" : "#333",
                         color: "var(--cream)",
                         fontFamily: "var(--font-barlow-condensed)",
@@ -363,9 +381,8 @@ export default function ProductsPage() {
                         transition: "background 0.3s",
                       }}
                       onMouseEnter={(e) => {
-                        if (available) {
+                        if (available)
                           e.currentTarget.style.background = "#c71609";
-                        }
                       }}
                       onMouseLeave={(e) => {
                         e.currentTarget.style.background = available
@@ -374,7 +391,7 @@ export default function ProductsPage() {
                       }}
                     >
                       {available ? "SHOP NOW" : "SOLD OUT"}
-                    </a>
+                    </Link>
                   </div>
                 </div>
               );
@@ -384,12 +401,7 @@ export default function ProductsPage() {
 
         {!loading && !error && products.length === 0 && (
           <div style={{ textAlign: "center", padding: "4rem" }}>
-            <p
-              style={{
-                fontFamily: "var(--font-barlow-condensed)",
-                fontSize: "1rem",
-              }}
-            >
+            <p style={{ fontFamily: "var(--font-barlow-condensed)", fontSize: "1rem" }}>
               No products found
             </p>
           </div>
