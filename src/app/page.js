@@ -1,65 +1,495 @@
-import Image from "next/image";
+"use client";
+import Link from "next/link"
+import { useEffect, useRef, useState } from "react";
+import Navbar from "./components/Navbar";
+
+const BASE_URL = "https://weforeverdrip-backend-1.onrender.com";
+const imageMap = {
+  "regular-white-tee": "/whiteshirt.JPEG",
+  "black-oversized-tee": "/blackshirt.JPEG",
+  "navy-active-shorts": "/blueshorts.JPEG",
+  "camo-bucket-hats": "/bucket_hat.jpg",
+  "wood-black-beanie": "/weforeverdripbeanie.JPEG",
+  "wood-boxer-set": "/boxer_set.jpg",
+  "wood-black-sweatshirt": "/blacksweatshirt.JPEG",
+  "wood-white-sweatshirt": "/sweatshirt.JPEG",
+  "wood-socks": "/socks.JPEG",
+  "wood-trucker-caps": "/trucker_cap.jpg",
+};
 
 export default function Home() {
+  const cursorRef = useRef(null);
+  const [featuredProducts, setFeaturedProducts] = useState([]);
+  const [loadingFeatured, setLoadingFeatured] = useState(true);
+  const [errorFeatured, setErrorFeatured] = useState(null);
+
+  useEffect(() => {
+  
+    const move = (e) => {
+      if (cursorRef.current) {
+        cursorRef.current.style.left = e.clientX + "px";
+        cursorRef.current.style.top = e.clientY + "px";
+      }
+    };
+    window.addEventListener("mousemove", move);
+    return () => window.removeEventListener("mousemove", move);
+  }, []);
+
+  useEffect(() => {
+    const fetchFeatured = async () => {
+      try {
+     setLoadingFeatured(true)
+      const controller = new AbortController()
+      const timeoutId = setTimeout(() => controller.abort(), 60000) // 60 second limit
+
+      const res = await fetch(
+       `${BASE_URL}/api/v1/products/featured/`,
+        { signal: controller.signal }
+      )
+      clearTimeout(timeoutId)
+
+      if (!res.ok) throw new Error("Failed to fetch")
+      const data = await res.json()
+      setFeaturedProducts(Array.isArray(data) ? data : data.results || [])
+      setErrorFeatured(null)
+       } catch (err) {
+      if (err.name === "AbortError") {
+      setErrorFeatured("Server is waking up — please refresh in a moment")
+      } else {
+      setErrorFeatured(err.message)
+      }
+      setFeaturedProducts([])
+      } finally {
+    setLoadingFeatured(false)
+     }
+    };
+    fetchFeatured();
+  }, []);
+
+  const getProductImage = (product) => {
+  if (product.images && product.images.length > 0) {
+    const primary = product.images.find((img) => img.is_primary);
+    const imageUrl = primary ? primary.image : product.images[0].image;
+    if (imageUrl) {
+      return imageUrl.startsWith("http") ? imageUrl : `${BASE_URL}${imageUrl}`;
+    }
+  }
+  return imageMap[product.slug] || "/whiteshirt.JPEG";
+  };
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
+    <>
+      <div ref={cursorRef} className="cursor" />
+      <Navbar cartCount={0} />
+
+      {/* HERO */}
+      <section
+        style={{
+          height: "100vh",
+          position: "relative",
+          overflow: "hidden",
+          display: "flex",
+          alignItems: "flex-end",
+          padding: "4rem 3rem",
+        }}
+      >
+        <div
+          style={{
+            position: "absolute",
+            inset: 0,
+            backgroundImage: "url(/wood_scrapershot.jpeg)",
+            backgroundSize: "cover",
+            backgroundPosition: "center top",
+            filter: "brightness(0.45)",
+          }}
         />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.js file.
+        <div style={{ position: "relative", zIndex: 1 }}>
+          <h1
+            style={{
+              fontFamily: "var(--font-bebas)",
+              fontSize: "clamp(6rem, 18vw, 18rem)",
+              lineHeight: 0.85,
+              letterSpacing: "-0.02em",
+              color: "var(--cream)",
+            }}
+          >
+            W
+            <span
+              style={{
+                color: "var(--red)",
+                verticalAlign: "middle",
+                fontSize: "0.85em",
+              }}
+            >
+              ∞
+            </span>
+            D
           </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
+          <p
+            style={{
+              fontFamily: "var(--font-barlow-condensed)",
+              fontSize: "1rem",
+              letterSpacing: "0.3em",
+              textTransform: "uppercase",
+              color: "var(--cream)",
+              opacity: 0.7,
+              marginTop: "0.5rem",
+            }}
+          >
+            We Forever Drip — Enugu, Nigeria
           </p>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+      </section>
+
+      {/* TICKER */}
+      <div
+        style={{
+          background: "var(--red)",
+          overflow: "hidden",
+          padding: "0.75rem 0",
+          whiteSpace: "nowrap",
+        }}
+      >
+        <div
+          style={{
+          display: "inline-flex",
+          animation: "ticker 20s linear infinite",
+          fontFamily: "var(--font-barlow-condensed)",
+         fontSize: "0.85rem",
+         letterSpacing: "0.2em",
+         textTransform: "uppercase",
+         color: "var(--cream)",
+        }}  
+      >
+
+  {["a", "b"].map((key) => (
+    <span key={key} style={{ display: "inline-block", paddingRight: "4rem", whiteSpace: "nowrap" }}>
+      WE FOREVER DRIP · ENUGU · NIGERIA · W∞D · WE FOREVER DRIP · ENUGU · NIGERIA · W∞D · WE FOREVER DRIP · ENUGU · NIGERIA · W∞D ·
+    </span>
+  ))}
+</div>
+        <style>{`
+          @keyframes ticker {
+            from { transform: translateX(0); }
+            to { transform: translateX(-50%); }
+          }
+        `}</style>
+      </div>
+
+      {/* IDENTITY SECTION */}
+      <section
+        style={{
+          height: "90vh",
+          position: "relative",
+          overflow: "hidden",
+          display: "flex",
+          alignItems: "center",
+          padding: "4rem 3rem",
+        }}
+      >
+        <div
+          style={{
+            position: "absolute",
+            inset: 0,
+            backgroundImage: "url(/cameo_x_unknown.jpeg)",
+            backgroundSize: "cover",
+            backgroundPosition: "center",
+            filter: "brightness(0.3)",
+          }}
+        />
+        <div style={{ position: "relative", zIndex: 1, maxWidth: "600px" }}>
+          <p
+            style={{
+              fontFamily: "var(--font-barlow-condensed)",
+              fontSize: "0.8rem",
+              letterSpacing: "0.3em",
+              textTransform: "uppercase",
+              color: "var(--red)",
+              marginBottom: "1.5rem",
+            }}
           >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+            The Brand
+          </p>
+          <h2
+            style={{
+              fontFamily: "var(--font-bebas)",
+              fontSize: "clamp(3rem, 7vw, 6rem)",
+              lineHeight: 0.9,
+              color: "var(--cream)",
+              marginBottom: "2rem",
+            }}
           >
-            Documentation
-          </a>
+            Built from the streets.
+            <br />
+            Made for the world.
+          </h2>
+          <p
+            style={{
+              fontFamily: "var(--font-barlow)",
+              fontSize: "1rem",
+              lineHeight: 1.8,
+              color: "var(--cream)",
+              opacity: 0.7,
+            }}
+          >
+            We Forever Drip is not just clothing. It's a movement rooted in
+            Enugu's raw energy, worn by those who move different.
+          </p>
         </div>
-      </main>
-    </div>
+      </section>
+
+      {/* CREW SECTION */}
+      <section
+        style={{
+          height: "90vh",
+          position: "relative",
+          overflow: "hidden",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+        }}
+      >
+        <div
+          style={{
+            position: "absolute",
+            inset: 0,
+            backgroundImage: "url(/wood_crew.jpeg)",
+            backgroundSize: "cover",
+            backgroundPosition: "center top",
+            filter: "brightness(0.35)",
+          }}
+        />
+        <div style={{ position: "relative", zIndex: 1, textAlign: "center" }}>
+          <h2
+            style={{
+              fontFamily: "var(--font-bebas)",
+              fontSize: "clamp(4rem, 12vw, 12rem)",
+              lineHeight: 0.85,
+              color: "var(--cream)",
+              letterSpacing: "0.05em",
+            }}
+          >
+            The Culture
+          </h2>
+          <p
+            style={{
+              fontFamily: "var(--font-barlow-condensed)",
+              fontSize: "0.85rem",
+              letterSpacing: "0.3em",
+              textTransform: "uppercase",
+              color: "var(--red)",
+              marginTop: "1rem",
+            }}
+          >
+            Enugu · Nigeria · Global
+          </p>
+        </div>
+      </section>
+
+      {/* LOOKBOOK */}
+      <section
+        style={{
+          display: "grid",
+          gridTemplateColumns: "1fr 1fr",
+          height: "80vh",
+        }}
+      >
+        <div
+          style={{
+            backgroundImage: "url(/cameo_black_and_white.jpeg)",
+            backgroundSize: "cover",
+            backgroundPosition: "center",
+            filter: "brightness(0.7)",
+          }}
+        />
+        <div
+          style={{
+            backgroundImage: "url(/tatiana_x_wood.jpeg)",
+            backgroundSize: "cover",
+            backgroundPosition: "center top",
+            filter: "brightness(0.7)",
+          }}
+        />
+      </section>
+
+      {/* FEATURED PRODUCTS */}
+      <section
+        style={{
+          background: "var(--black)",
+          padding: "6rem 3rem",
+          color: "var(--cream)",
+        }}
+      >
+        <h2
+          style={{
+            fontFamily: "var(--font-bebas)",
+            fontSize: "clamp(3rem, 8vw, 7rem)",
+            color: "var(--cream)",
+            letterSpacing: "0.05em",
+            marginBottom: "4rem",
+            textAlign: "center",
+          }}
+        >
+          FEATURED DROPS
+        </h2>
+
+        {loadingFeatured && (
+          <div style={{ textAlign: "center", padding: "4rem" }}>
+            <p
+              style={{
+                fontFamily: "var(--font-barlow-condensed)",
+                fontSize: "1rem",
+              }}
+            >
+              Loading...
+            </p>
+          </div>
+        )}
+
+        {errorFeatured && (
+          <div 
+             style={{ textAlign: "center", padding: "4rem", color: "var(--red)" }}>
+            <p 
+              style={{ fontFamily: "var(--font-barlow-condensed)", fontSize: "1rem" }}>
+              {errorFeatured}
+            </p>
+         </div>
+        )}
+
+        {!loadingFeatured && !errorFeatured && featuredProducts.length === 0 && (
+            <p style={{ textAlign: "center", fontFamily: "var(--font-barlow-condensed)", color: "var(--cream)", opacity: 0.5 }}>
+             No drops yet — check back soon.
+            </p>
+            )}
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))",
+              gap: "2rem",
+            }}
+          >
+            {featuredProducts.map((product) => (
+              <div
+                key={product.id}
+                style={{
+                  background: "#111",
+                  border: "1px solid #1a1a1a",
+                  overflow: "hidden",
+                  cursor: "pointer",
+                  transition: "transform 0.3s, box-shadow 0.3s",
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.transform = "translateY(-8px)";
+                  e.currentTarget.style.boxShadow =
+                    "0 20px 40px rgba(217,26,10,0.2)";
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.transform = "translateY(0)";
+                  e.currentTarget.style.boxShadow = "none";
+                }}
+              >
+                <div
+                  style={{
+                    position: "relative",
+                    overflow: "hidden",
+                    height: "350px",
+                    background: "#000",
+                  }}
+                >
+                  <img
+                    src={getProductImage(product)}
+                    alt={product.name}
+                    style={{
+                      width: "100%",
+                      height: "100%",
+                      objectFit: "cover",
+                      objectPosition: "center",
+                    }}
+                  />
+                </div>
+                <div style={{ padding: "1.5rem" }}>
+                  <h3
+                    style={{
+                      fontFamily: "var(--font-barlow-condensed)",
+                      fontSize: "1rem",
+                      color: "var(--cream)",
+                      marginBottom: "0.5rem",
+                      letterSpacing: "0.05em",
+                    }}
+                  >
+                    {product.name}
+                  </h3>
+                  <p
+                    style={{
+                      fontFamily: "var(--font-barlow-condensed)",
+                      fontSize: "1.2rem",
+                      color: "var(--red)",
+                      marginBottom: "1rem",
+                      letterSpacing: "0.05em",
+                    }}
+                  >
+                    {product.price_naira
+                      ? Number(product.price_naira).toLocaleString("en-NG", {
+                          style: "currency",
+                          currency: "NGN",
+                          minimumFractionDigits: 0,
+                        })
+                      : "Price TBA"}
+                  </p>
+                  <Link
+                   href={`/products/${product.slug}`}
+                   style={{
+                      display: "block",
+                      background: "var(--red)",
+                      color: "var(--cream)",
+                      fontFamily: "var(--font-barlow-condensed)",
+                      fontSize: "0.85rem",
+                      letterSpacing: "0.2em",
+                      textTransform: "uppercase",
+                      border: "none",
+                      padding: "1rem",
+                      textAlign: "center",
+                      cursor: "pointer",
+                      textDecoration: "none",
+                      transition: "background 0.3s",
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.background = "#c71609";
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.background = "var(--red)";
+                    }}
+                  >
+                    SHOP NOW
+                  </Link>
+                </div>
+              </div>
+            ))}
+          </div>
+        
+      </section>
+
+      {/* FOOTER */}
+      <footer
+        style={{
+          background: "#0d0d0d",
+          padding: "3rem",
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          fontFamily: "var(--font-barlow-condensed)",
+          fontSize: "0.8rem",
+          letterSpacing: "0.15em",
+          textTransform: "uppercase",
+          color: "rgba(240, 235, 224, 0.6)",
+        }}
+      >
+        <span>
+          W<span style={{ color: "var(--red)" }}>∞</span>D © 2026
+        </span>
+        <span>Weforeverdrip Clothing · CAC Reg. No. 3503283</span>
+        <span>Enugu, Nigeria</span>
+      </footer>
+    </>
   );
 }
