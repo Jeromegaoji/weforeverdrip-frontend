@@ -20,8 +20,8 @@ const barlow = Barlow({
 })
 
 export const metadata = {
-  title: 'WOOD — We Forever Drip',
-  description: 'Nigerian streetwear. Enugu to the world.',
+  title: 'W∞\uFE0ED — We Forever Drip',
+  description: 'Premium streetwear from Enugu, Nigeria. Shop the W∞\uFE0ED collection.',
 }
 
 export default function RootLayout({ children }) {
