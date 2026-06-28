@@ -1,7 +1,10 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import Navbar from "../components/Navbar";
+
+const BASE_URL = "https://weforeverdrip.fly.dev";
 
 export default function CartPage() {
   const router = useRouter();
@@ -39,7 +42,7 @@ export default function CartPage() {
       try {
         setLoading(true);
         const response = await fetch(
-          "https://web-production-5fcc4.up.railway.app/api/v1/orders/cart/",
+          `${BASE_URL}/api/v1/orders/cart/`,
           {
             method: "GET",
             headers: {
@@ -75,7 +78,7 @@ export default function CartPage() {
     try {
       setUpdating((prev) => ({ ...prev, [itemId]: true }));
       const response = await fetch(
-        `https://web-production-5fcc4.up.railway.app/api/v1/orders/cart/item/${itemId}/`,
+        `${BASE_URL}/api/v1/orders/cart/item/${itemId}/`,
         {
           method: "PATCH",
           headers: {
@@ -92,7 +95,7 @@ export default function CartPage() {
 
       // Refresh cart
       const cartResponse = await fetch(
-        "https://web-production-5fcc4.up.railway.app/api/v1/orders/cart/",
+        `${BASE_URL}/api/v1/orders/cart/`,
         {
           method: "GET",
           headers: {
@@ -113,7 +116,7 @@ export default function CartPage() {
     try {
       setUpdating((prev) => ({ ...prev, [itemId]: true }));
       const response = await fetch(
-        `https://web-production-5fcc4.up.railway.app/api/v1/orders/cart/item/${itemId}/`,
+        `${BASE_URL}/api/v1/orders/cart/item/${itemId}/`,
         {
           method: "DELETE",
           headers: {
@@ -128,7 +131,7 @@ export default function CartPage() {
 
       // Refresh cart
       const cartResponse = await fetch(
-        "https://web-production-5fcc4.up.railway.app/api/v1/orders/cart/",
+        `${BASE_URL}/api/v1/orders/cart/`,
         {
           method: "GET",
           headers: {
@@ -190,7 +193,7 @@ export default function CartPage() {
             >
               Please log in to view your cart
             </p>
-            <a
+            <Link
               href="/auth"
               style={{
                 display: "inline-block",
@@ -207,7 +210,7 @@ export default function CartPage() {
               }}
             >
               Go to Login
-            </a>
+            </Link>
           </div>
         </div>
       </div>
@@ -330,7 +333,7 @@ export default function CartPage() {
             >
               Start shopping to add items to your cart
             </p>
-            <a
+            <Link
               href="/products"
               style={{
                 display: "inline-block",
@@ -347,7 +350,7 @@ export default function CartPage() {
               }}
             >
               Continue Shopping
-            </a>
+            </Link>
           </div>
         </div>
       </div>
@@ -650,7 +653,7 @@ export default function CartPage() {
               Proceed to Checkout
             </button>
 
-            <a
+            <Link
               href="/products"
               style={{
                 display: "block",
@@ -664,7 +667,7 @@ export default function CartPage() {
               }}
             >
               Continue Shopping
-            </a>
+            </Link>
           </div>
         </div>
       </div>

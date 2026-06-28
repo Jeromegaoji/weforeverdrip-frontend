@@ -3,8 +3,8 @@ import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import Navbar from "../components/Navbar";
 
-const BASE_URL = "https://weforeverdrip-backend-1.onrender.com";
-const FETCH_TIMEOUT_MS = 10_000; // 10 seconds
+const BASE_URL = "https://weforeverdrip.fly.dev";
+const FETCH_TIMEOUT_MS = 10_000;
 
 const IMAGE_FALLBACKS = {
   "regular-white-tee": "/whiteshirt.JPEG",
@@ -26,6 +26,7 @@ export default function ProductsPage() {
   const [error, setError] = useState(null);
   const [categories, setCategories] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState(null);
+  const [retryTrigger, setRetryTrigger] = useState(0);
 
   useEffect(() => {
     const move = (e) => {
@@ -38,7 +39,6 @@ export default function ProductsPage() {
     return () => window.removeEventListener("mousemove", move);
   }, []);
 
-  // FIX: Added AbortController with 10s timeout + cleanup on unmount
   useEffect(() => {
     const controller = new AbortController();
     const timer = setTimeout(() => controller.abort(), FETCH_TIMEOUT_MS);
@@ -68,7 +68,6 @@ export default function ProductsPage() {
     };
   }, []);
 
-  // FIX: Added AbortController with 10s timeout + cleanup on unmount/re-run
   useEffect(() => {
     const controller = new AbortController();
     const timer = setTimeout(() => controller.abort(), FETCH_TIMEOUT_MS);
@@ -103,7 +102,7 @@ export default function ProductsPage() {
       clearTimeout(timer);
       controller.abort();
     };
-  }, [selectedCategory]);
+  }, [selectedCategory, retryTrigger]);
 
   const getProductImage = (product) => {
     if (product.images && product.images.length > 0) {
@@ -238,7 +237,7 @@ export default function ProductsPage() {
               {error}
             </p>
             <button
-              onClick={() => setSelectedCategory(selectedCategory)}
+              onClick={() => setRetryTrigger(t => t + 1)}
               style={{
                 marginTop: "1.5rem",
                 fontFamily: "var(--font-barlow-condensed)",
@@ -362,7 +361,6 @@ export default function ProductsPage() {
                         : "Price TBA"}
                     </p>
 
-                    {/* FIX: <Link> instead of <a> — no full page reload */}
                     <Link
                       href={`/products/${product.slug}`}
                       style={{

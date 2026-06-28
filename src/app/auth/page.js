@@ -3,6 +3,8 @@ import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import Navbar from "../components/Navbar";
 
+const BASE_URL = "https://weforeverdrip.fly.dev";
+
 export default function AuthPage() {
   const router = useRouter();
   const cursorRef = useRef(null);
@@ -46,7 +48,7 @@ export default function AuthPage() {
     try {
       setLoading(true);
       const response = await fetch(
-        "https://web-production-5fcc4.up.railway.app/api/v1/auth/login/",
+        `${BASE_URL}/api/v1/auth/login/`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -94,7 +96,7 @@ export default function AuthPage() {
     try {
       setLoading(true);
       const response = await fetch(
-        "https://web-production-5fcc4.up.railway.app/api/v1/auth/register/",
+        `${BASE_URL}/api/v1/auth/register/`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -139,8 +141,10 @@ export default function AuthPage() {
 
       <div
         style={{
-          paddingTop: "120px",
-          padding: "6rem 3rem",
+          paddingTop: "7.5rem",
+          paddingLeft: "3rem",
+          paddingRight: "3rem",
+          paddingBottom: "6rem",
           display: "flex",
           justifyContent: "center",
           alignItems: "center",

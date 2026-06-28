@@ -1,10 +1,11 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
 import { useRouter, useParams } from "next/navigation";
+import Link from "next/link";
 import Navbar from "../../components/Navbar";
 
 // FIX (Bug 2): Updated BASE_URL from Railway → Render
-const BASE_URL = "https://weforeverdrip-backend-1.onrender.com";
+const BASE_URL = "https://weforeverdrip.fly.dev";
 
 const imageMap = {
   "regular-white-tee": "/whiteshirt.JPEG",
@@ -55,7 +56,6 @@ export default function ProductDetailPage() {
         const data = await response.json();
         setProduct(data);
         if (data.variants && data.variants.length > 0) {
-          // Auto-select first variant that's in stock; fall back to first overall
           const firstAvailable = data.variants.find((v) => v.in_stock);
           setSelectedVariant(firstAvailable || data.variants[0]);
         }
@@ -128,10 +128,6 @@ export default function ProductDetailPage() {
     }
   };
 
-  // FIX (Bug 4): Cursor div and Navbar now live in a single persistent wrapper
-  // that's always rendered, regardless of loading/error/success state.
-  // Previously, cursorRef was duplicated across three separate return branches,
-  // which caused the cursor element to remount on every state transition.
   return (
     <div
       style={{
@@ -140,7 +136,6 @@ export default function ProductDetailPage() {
         color: "var(--cream)",
       }}
     >
-      {/* CURSOR — rendered once, stays mounted through all state changes */}
       <div ref={cursorRef} className="cursor" />
       <Navbar cartCount={0} />
 
@@ -185,7 +180,7 @@ export default function ProductDetailPage() {
             >
               {error || "Product not found"}
             </p>
-            <a
+            <Link
               href="/products"
               style={{
                 marginTop: "2rem",
@@ -203,7 +198,7 @@ export default function ProductDetailPage() {
               }}
             >
               Back to Products
-            </a>
+            </Link>
           </div>
         </div>
       )}
@@ -231,15 +226,13 @@ export default function ProductDetailPage() {
               style={{
                 position: "sticky",
                 top: "150px",
-                height: "fit-content",
               }}
             >
               <div
                 style={{
-                  position: "relative",
-                  overflow: "hidden",
-                  aspectRatio: "1/1",
+                  height: "600px",
                   background: "#111",
+                  overflow: "hidden",
                   border: "1px solid #1a1a1a",
                 }}
               >
@@ -326,9 +319,6 @@ export default function ProductDetailPage() {
                 >
                   {product.variants && product.variants.length > 0 ? (
                     product.variants.map((variant) => (
-                      // FIX (Bug 5): Use variant.id as key instead of array index.
-                      // Array-index keys break React's reconciliation when the
-                      // variants list order changes — variant.id is stable.
                       <button
                         key={variant.id}
                         onClick={() => setSelectedVariant(variant)}

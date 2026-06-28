@@ -3,7 +3,7 @@ import Link from "next/link"
 import { useEffect, useRef, useState } from "react";
 import Navbar from "./components/Navbar";
 
-const BASE_URL = "https://weforeverdrip-backend-1.onrender.com";
+const BASE_URL = "https://weforeverdrip.fly.dev";
 const imageMap = {
   "regular-white-tee": "/whiteshirt.JPEG",
   "black-oversized-tee": "/blackshirt.JPEG",
@@ -24,7 +24,6 @@ export default function Home() {
   const [errorFeatured, setErrorFeatured] = useState(null);
 
   useEffect(() => {
-  
     const move = (e) => {
       if (cursorRef.current) {
         cursorRef.current.style.left = e.clientX + "px";
@@ -38,43 +37,43 @@ export default function Home() {
   useEffect(() => {
     const fetchFeatured = async () => {
       try {
-     setLoadingFeatured(true)
-      const controller = new AbortController()
-      const timeoutId = setTimeout(() => controller.abort(), 60000) // 60 second limit
+        setLoadingFeatured(true);
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 60000);
 
-      const res = await fetch(
-       `${BASE_URL}/api/v1/products/featured/`,
-        { signal: controller.signal }
-      )
-      clearTimeout(timeoutId)
+        const res = await fetch(
+          `${BASE_URL}/api/v1/products/`,
+          { signal: controller.signal }
+        );
+        clearTimeout(timeoutId);
 
-      if (!res.ok) throw new Error("Failed to fetch")
-      const data = await res.json()
-      setFeaturedProducts(Array.isArray(data) ? data : data.results || [])
-      setErrorFeatured(null)
-       } catch (err) {
-      if (err.name === "AbortError") {
-      setErrorFeatured("Server is waking up — please refresh in a moment")
-      } else {
-      setErrorFeatured(err.message)
-      }
-      setFeaturedProducts([])
+        if (!res.ok) throw new Error("Failed to fetch");
+        const data = await res.json();
+        setFeaturedProducts(Array.isArray(data) ? data : data.results || []);
+        setErrorFeatured(null);
+      } catch (err) {
+        if (err.name === "AbortError") {
+          setErrorFeatured("Server is waking up — please refresh in a moment");
+        } else {
+          setErrorFeatured(err.message);
+        }
+        setFeaturedProducts([]);
       } finally {
-    setLoadingFeatured(false)
-     }
+        setLoadingFeatured(false);
+      }
     };
     fetchFeatured();
   }, []);
 
   const getProductImage = (product) => {
-  if (product.images && product.images.length > 0) {
-    const primary = product.images.find((img) => img.is_primary);
-    const imageUrl = primary ? primary.image : product.images[0].image;
-    if (imageUrl) {
-      return imageUrl.startsWith("http") ? imageUrl : `${BASE_URL}${imageUrl}`;
+    if (product.images && product.images.length > 0) {
+      const primary = product.images.find((img) => img.is_primary);
+      const imageUrl = primary ? primary.image : product.images[0].image;
+      if (imageUrl) {
+        return imageUrl.startsWith("http") ? imageUrl : `${BASE_URL}${imageUrl}`;
+      }
     }
-  }
-  return imageMap[product.slug] || "/whiteshirt.JPEG";
+    return imageMap[product.slug] || "/whiteshirt.JPEG";
   };
 
   return (
@@ -121,7 +120,7 @@ export default function Home() {
                 fontSize: "0.85em",
               }}
             >
-              ∞
+              {"∞\uFE0E"}
             </span>
             D
           </h1>
@@ -152,22 +151,21 @@ export default function Home() {
       >
         <div
           style={{
-          display: "inline-flex",
-          animation: "ticker 20s linear infinite",
-          fontFamily: "var(--font-barlow-condensed)",
-         fontSize: "0.85rem",
-         letterSpacing: "0.2em",
-         textTransform: "uppercase",
-         color: "var(--cream)",
-        }}  
-      >
-
-  {["a", "b"].map((key) => (
-    <span key={key} style={{ display: "inline-block", paddingRight: "4rem", whiteSpace: "nowrap" }}>
-      WE FOREVER DRIP · ENUGU · NIGERIA · W∞D · WE FOREVER DRIP · ENUGU · NIGERIA · W∞D · WE FOREVER DRIP · ENUGU · NIGERIA · W∞D ·
-    </span>
-  ))}
-</div>
+            display: "inline-flex",
+            animation: "ticker 20s linear infinite",
+            fontFamily: "var(--font-barlow-condensed)",
+            fontSize: "0.85rem",
+            letterSpacing: "0.2em",
+            textTransform: "uppercase",
+            color: "var(--cream)",
+          }}
+        >
+          {["a", "b"].map((key) => (
+            <span key={key} style={{ display: "inline-block", paddingRight: "4rem", whiteSpace: "nowrap" }}>
+              {`WE FOREVER DRIP · ENUGU · NIGERIA · W∞\uFE0ED · WE FOREVER DRIP · ENUGU · NIGERIA · W∞\uFE0ED · WE FOREVER DRIP · ENUGU · NIGERIA · W∞\uFE0ED ·`}
+            </span>
+          ))}
+        </div>
         <style>{`
           @keyframes ticker {
             from { transform: translateX(0); }
@@ -347,126 +345,135 @@ export default function Home() {
         )}
 
         {errorFeatured && (
-          <div 
-             style={{ textAlign: "center", padding: "4rem", color: "var(--red)" }}>
-            <p 
-              style={{ fontFamily: "var(--font-barlow-condensed)", fontSize: "1rem" }}>
+          <div
+            style={{ textAlign: "center", padding: "4rem", color: "var(--red)" }}
+          >
+            <p
+              style={{ fontFamily: "var(--font-barlow-condensed)", fontSize: "1rem" }}
+            >
               {errorFeatured}
             </p>
-         </div>
+          </div>
         )}
 
         {!loadingFeatured && !errorFeatured && featuredProducts.length === 0 && (
-            <p style={{ textAlign: "center", fontFamily: "var(--font-barlow-condensed)", color: "var(--cream)", opacity: 0.5 }}>
-             No drops yet — check back soon.
-            </p>
-            )}
+          <p
+            style={{
+              textAlign: "center",
+              fontFamily: "var(--font-barlow-condensed)",
+              color: "var(--cream)",
+              opacity: 0.5,
+            }}
+          >
+            No drops yet — check back soon.
+          </p>
+        )}
+
         <div
           style={{
             display: "grid",
             gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))",
-              gap: "2rem",
-            }}
-          >
-            {featuredProducts.map((product) => (
+            gap: "2rem",
+          }}
+        >
+          {featuredProducts.map((product) => (
+            <div
+              key={product.id}
+              style={{
+                background: "#111",
+                border: "1px solid #1a1a1a",
+                overflow: "hidden",
+                cursor: "pointer",
+                transition: "transform 0.3s, box-shadow 0.3s",
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.transform = "translateY(-8px)";
+                e.currentTarget.style.boxShadow =
+                  "0 20px 40px rgba(217,26,10,0.2)";
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.transform = "translateY(0)";
+                e.currentTarget.style.boxShadow = "none";
+              }}
+            >
               <div
-                key={product.id}
                 style={{
-                  background: "#111",
-                  border: "1px solid #1a1a1a",
+                  position: "relative",
                   overflow: "hidden",
-                  cursor: "pointer",
-                  transition: "transform 0.3s, box-shadow 0.3s",
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.transform = "translateY(-8px)";
-                  e.currentTarget.style.boxShadow =
-                    "0 20px 40px rgba(217,26,10,0.2)";
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.transform = "translateY(0)";
-                  e.currentTarget.style.boxShadow = "none";
+                  height: "350px",
+                  background: "#000",
                 }}
               >
-                <div
+                <img
+                  src={getProductImage(product)}
+                  alt={product.name}
                   style={{
-                    position: "relative",
-                    overflow: "hidden",
-                    height: "350px",
-                    background: "#000",
+                    width: "100%",
+                    height: "100%",
+                    objectFit: "cover",
+                    objectPosition: "center",
+                  }}
+                />
+              </div>
+              <div style={{ padding: "1.5rem" }}>
+                <h3
+                  style={{
+                    fontFamily: "var(--font-barlow-condensed)",
+                    fontSize: "1rem",
+                    color: "var(--cream)",
+                    marginBottom: "0.5rem",
+                    letterSpacing: "0.05em",
                   }}
                 >
-                  <img
-                    src={getProductImage(product)}
-                    alt={product.name}
-                    style={{
-                      width: "100%",
-                      height: "100%",
-                      objectFit: "cover",
-                      objectPosition: "center",
-                    }}
-                  />
-                </div>
-                <div style={{ padding: "1.5rem" }}>
-                  <h3
-                    style={{
-                      fontFamily: "var(--font-barlow-condensed)",
-                      fontSize: "1rem",
-                      color: "var(--cream)",
-                      marginBottom: "0.5rem",
-                      letterSpacing: "0.05em",
-                    }}
-                  >
-                    {product.name}
-                  </h3>
-                  <p
-                    style={{
-                      fontFamily: "var(--font-barlow-condensed)",
-                      fontSize: "1.2rem",
-                      color: "var(--red)",
-                      marginBottom: "1rem",
-                      letterSpacing: "0.05em",
-                    }}
-                  >
-                    {product.price_naira
-                      ? Number(product.price_naira).toLocaleString("en-NG", {
-                          style: "currency",
-                          currency: "NGN",
-                          minimumFractionDigits: 0,
-                        })
-                      : "Price TBA"}
-                  </p>
-                  <Link
-                   href={`/products/${product.slug}`}
-                   style={{
-                      display: "block",
-                      background: "var(--red)",
-                      color: "var(--cream)",
-                      fontFamily: "var(--font-barlow-condensed)",
-                      fontSize: "0.85rem",
-                      letterSpacing: "0.2em",
-                      textTransform: "uppercase",
-                      border: "none",
-                      padding: "1rem",
-                      textAlign: "center",
-                      cursor: "pointer",
-                      textDecoration: "none",
-                      transition: "background 0.3s",
-                    }}
-                    onMouseEnter={(e) => {
-                      e.currentTarget.style.background = "#c71609";
-                    }}
-                    onMouseLeave={(e) => {
-                      e.currentTarget.style.background = "var(--red)";
-                    }}
-                  >
-                    SHOP NOW
-                  </Link>
-                </div>
+                  {product.name}
+                </h3>
+                <p
+                  style={{
+                    fontFamily: "var(--font-barlow-condensed)",
+                    fontSize: "1.2rem",
+                    color: "var(--red)",
+                    marginBottom: "1rem",
+                    letterSpacing: "0.05em",
+                  }}
+                >
+                  {product.price_naira
+                    ? Number(product.price_naira).toLocaleString("en-NG", {
+                        style: "currency",
+                        currency: "NGN",
+                        minimumFractionDigits: 0,
+                      })
+                    : "Price TBA"}
+                </p>
+                <Link
+                  href={`/products/${product.slug}`}
+                  style={{
+                    display: "block",
+                    background: "var(--red)",
+                    color: "var(--cream)",
+                    fontFamily: "var(--font-barlow-condensed)",
+                    fontSize: "0.85rem",
+                    letterSpacing: "0.2em",
+                    textTransform: "uppercase",
+                    border: "none",
+                    padding: "1rem",
+                    textAlign: "center",
+                    cursor: "pointer",
+                    textDecoration: "none",
+                    transition: "background 0.3s",
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.background = "#c71609";
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.background = "var(--red)";
+                  }}
+                >
+                  SHOP NOW
+                </Link>
               </div>
-            ))}
-          </div>
-        
+            </div>
+          ))}
+        </div>
       </section>
 
       {/* FOOTER */}
@@ -485,7 +492,7 @@ export default function Home() {
         }}
       >
         <span>
-          W<span style={{ color: "var(--red)" }}>∞</span>D © 2026
+          W<span style={{ color: "var(--red)" }}>{"∞\uFE0E"}</span>D © 2026
         </span>
         <span>Weforeverdrip Clothing · CAC Reg. No. 3503283</span>
         <span>Enugu, Nigeria</span>

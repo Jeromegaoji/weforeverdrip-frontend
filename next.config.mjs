@@ -4,10 +4,10 @@ const nextConfig = {
     remotePatterns: [
       {
         protocol: 'https',
-        hostname: 'web-production-5fcc4.up.railway.app',
+        hostname: 'weforeverdrip.fly.dev',
       },
     ],
   },
 }
 
-export default nextConfig  // This is the default export for the Next.js configuration, which includes settings for handling remote images from a specific hostname.
+export default nextConfig
