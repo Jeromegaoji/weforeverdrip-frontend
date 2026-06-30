@@ -23,6 +23,7 @@ export default function AuthPage() {
   const [registerLastName, setRegisterLastName] = useState("");
   const [registerEmail, setRegisterEmail] = useState("");
   const [registerPassword, setRegisterPassword] = useState("");
+  const [registerConfirmPassword, setRegisterConfirmPassword] = useState("");
 
   useEffect(() => {
     const move = (e) => {
@@ -87,9 +88,15 @@ export default function AuthPage() {
       !registerFirstName ||
       !registerLastName ||
       !registerEmail ||
-      !registerPassword
+      !registerPassword ||
+      !registerConfirmPassword
     ) {
       setError("Please fill in all fields");
+      return;
+    }
+
+    if (registerPassword !== registerConfirmPassword) {
+      setError("Passwords do not match");
       return;
     }
 
@@ -105,6 +112,7 @@ export default function AuthPage() {
             last_name: registerLastName,
             email: registerEmail,
             password: registerPassword,
+            confirm_password: registerConfirmPassword,
           }),
         },
       );
@@ -480,7 +488,7 @@ export default function AuthPage() {
                 />
               </div>
 
-              <div style={{ marginBottom: "2rem" }}>
+              <div style={{ marginBottom: "1.5rem" }}>
                 <label
                   style={{
                     display: "block",
@@ -498,6 +506,44 @@ export default function AuthPage() {
                   type="password"
                   value={registerPassword}
                   onChange={(e) => setRegisterPassword(e.target.value)}
+                  style={{
+                    width: "100%",
+                    padding: "0.75rem 1rem",
+                    background: "#111",
+                    border: "1px solid #222",
+                    color: "var(--cream)",
+                    fontSize: "1rem",
+                    fontFamily: "var(--font-barlow)",
+                    boxSizing: "border-box",
+                    transition: "border 0.3s",
+                  }}
+                  onFocus={(e) => {
+                    e.target.style.borderColor = "var(--red)";
+                  }}
+                  onBlur={(e) => {
+                    e.target.style.borderColor = "#222";
+                  }}
+                />
+              </div>
+
+              <div style={{ marginBottom: "2rem" }}>
+                <label
+                  style={{
+                    display: "block",
+                    fontFamily: "var(--font-barlow-condensed)",
+                    fontSize: "0.85rem",
+                    letterSpacing: "0.1em",
+                    textTransform: "uppercase",
+                    marginBottom: "0.5rem",
+                    opacity: 0.8,
+                  }}
+                >
+                  Confirm Password
+                </label>
+                <input
+                  type="password"
+                  value={registerConfirmPassword}
+                  onChange={(e) => setRegisterConfirmPassword(e.target.value)}
                   style={{
                     width: "100%",
                     padding: "0.75rem 1rem",

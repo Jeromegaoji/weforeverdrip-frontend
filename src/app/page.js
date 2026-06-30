@@ -103,27 +103,16 @@ export default function Home() {
           }}
         />
         <div style={{ position: "relative", zIndex: 1 }}>
-          <h1
+          <img
+            src="/weforeverdriplogo-removebg-preview.png"
+            alt="W∞D"
             style={{
-              fontFamily: "var(--font-bebas)",
-              fontSize: "clamp(6rem, 18vw, 18rem)",
-              lineHeight: 0.85,
-              letterSpacing: "-0.02em",
-              color: "var(--cream)",
-            }}
-          >
-            W
-            <span
-              style={{
-                color: "var(--red)",
-                verticalAlign: "middle",
-                fontSize: "0.85em",
-              }}
-            >
-              {"∞\uFE0E"}
-            </span>
-            D
-          </h1>
+             height: "clamp(8rem, 22vw, 18rem)",
+              filter: "brightness(2) invert(1)",
+             display: "block",
+             marginBottom: "1rem",
+          }}
+        />
           <p
             style={{
               fontFamily: "var(--font-barlow-condensed)",
