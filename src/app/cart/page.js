@@ -3,8 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Navbar from "../components/Navbar";
-
-const BASE_URL = "https://weforeverdrip.fly.dev";
+import { authFetch } from "@/lib/apiClient";
 
 export default function CartPage() {
   const router = useRouter();
@@ -41,15 +40,9 @@ export default function CartPage() {
     const fetchCart = async () => {
       try {
         setLoading(true);
-        const response = await fetch(
-          `${BASE_URL}/api/v1/orders/cart/`,
-          {
-            method: "GET",
-            headers: {
-              Authorization: `Bearer ${accessToken}`,
-            },
-          },
-        );
+        const response = await authFetch("/api/v1/orders/cart/", {
+          method: "GET",
+        });
 
         if (!response.ok) {
           throw new Error("Failed to fetch cart");
@@ -77,14 +70,11 @@ export default function CartPage() {
 
     try {
       setUpdating((prev) => ({ ...prev, [itemId]: true }));
-      const response = await fetch(
-        `${BASE_URL}/api/v1/orders/cart/item/${itemId}/`,
+      const response = await authFetch(
+        `/api/v1/orders/cart/item/${itemId}/`,
         {
           method: "PATCH",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
+          headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ quantity: newQuantity }),
         },
       );
@@ -94,15 +84,9 @@ export default function CartPage() {
       }
 
       // Refresh cart
-      const cartResponse = await fetch(
-        `${BASE_URL}/api/v1/orders/cart/`,
-        {
-          method: "GET",
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        },
-      );
+      const cartResponse = await authFetch("/api/v1/orders/cart/", {
+        method: "GET",
+      });
       const updatedCart = await cartResponse.json();
       setCart(updatedCart);
     } catch (err) {
@@ -115,14 +99,9 @@ export default function CartPage() {
   const removeItem = async (itemId) => {
     try {
       setUpdating((prev) => ({ ...prev, [itemId]: true }));
-      const response = await fetch(
-        `${BASE_URL}/api/v1/orders/cart/item/${itemId}/`,
-        {
-          method: "DELETE",
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        },
+      const response = await authFetch(
+        `/api/v1/orders/cart/item/${itemId}/`,
+        { method: "DELETE" },
       );
 
       if (!response.ok) {
@@ -130,15 +109,9 @@ export default function CartPage() {
       }
 
       // Refresh cart
-      const cartResponse = await fetch(
-        `${BASE_URL}/api/v1/orders/cart/`,
-        {
-          method: "GET",
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        },
-      );
+      const cartResponse = await authFetch("/api/v1/orders/cart/", {
+        method: "GET",
+      });
       const updatedCart = await cartResponse.json();
       setCart(updatedCart);
     } catch (err) {

@@ -35,4 +35,10 @@ body {
   .product-detail-grid {
     grid-template-columns: 1fr !important;
   }
+  .product-image-wrapper {
+    position: static !important;
+  }
+  .product-image-box {
+    height: 350px !important;
+  }
 }

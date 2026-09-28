@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import { useRouter, useParams } from "next/navigation";
 import Link from "next/link";
 import Navbar from "../../components/Navbar";
+import { authFetch } from "@/lib/apiClient";
 
 // FIX (Bug 2): Updated BASE_URL from Railway → Render
 const BASE_URL = "https://weforeverdrip.fly.dev";
@@ -99,21 +100,14 @@ export default function ProductDetailPage() {
 
     try {
       setAddingToCart(true);
-      // FIX (Bug 2): Updated fetch URL from Railway → Render
-      const response = await fetch(
-        `${BASE_URL}/api/v1/orders/cart/add/`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify({
-            variant_id: selectedVariant.id,
-            quantity: 1,
-          }),
-        },
-      );
+      const response = await authFetch("/api/v1/orders/cart/add/", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          variant_id: selectedVariant.id,
+          quantity: 1,
+        }),
+      });
 
       if (!response.ok) {
         throw new Error("Failed to add to cart");
@@ -223,12 +217,14 @@ export default function ProductDetailPage() {
           >
             {/* LEFT: PRODUCT IMAGE */}
             <div
+              className="product-image-wrapper"
               style={{
                 position: "sticky",
                 top: "150px",
               }}
             >
               <div
+                className="product-image-box"
                 style={{
                   height: "600px",
                   background: "#111",
