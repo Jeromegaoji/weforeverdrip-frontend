@@ -416,7 +416,7 @@ export default function CartPage() {
                       marginBottom: "0.5rem",
                     }}
                   >
-                    {item.variant.product.name}
+                    {item.variant.product_name}
                   </h3>
                   <p
                     style={{
