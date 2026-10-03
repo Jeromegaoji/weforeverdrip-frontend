@@ -4,9 +4,11 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Navbar from "../components/Navbar";
 import { authFetch } from "@/lib/apiClient";
+import { useCart } from "@/context/CartContext";
 
 export default function CartPage() {
   const router = useRouter();
+  const { setCartCount } = useCart();
   const cursorRef = useRef(null);
 
   const [cart, setCart] = useState(null);
@@ -89,6 +91,7 @@ export default function CartPage() {
       });
       const updatedCart = await cartResponse.json();
       setCart(updatedCart);
+      setCartCount(updatedCart.item_count || 0);
     } catch (err) {
       setError(err.message);
     } finally {
@@ -114,6 +117,7 @@ export default function CartPage() {
       });
       const updatedCart = await cartResponse.json();
       setCart(updatedCart);
+      setCartCount(updatedCart.item_count || 0);
     } catch (err) {
       setError(err.message);
     } finally {
@@ -131,7 +135,7 @@ export default function CartPage() {
         }}
       >
         <div ref={cursorRef} className="cursor" />
-        <Navbar cartCount={0} />
+        <Navbar />
 
         <div
           style={{
@@ -200,7 +204,7 @@ export default function CartPage() {
         }}
       >
         <div ref={cursorRef} className="cursor" />
-        <Navbar cartCount={0} />
+        <Navbar />
 
         <div
           style={{
@@ -237,7 +241,7 @@ export default function CartPage() {
         }}
       >
         <div ref={cursorRef} className="cursor" />
-        <Navbar cartCount={0} />
+        <Navbar />
 
         <div
           style={{
@@ -271,7 +275,7 @@ export default function CartPage() {
         }}
       >
         <div ref={cursorRef} className="cursor" />
-        <Navbar cartCount={0} />
+        <Navbar />
 
         <div
           style={{
@@ -339,7 +343,7 @@ export default function CartPage() {
       }}
     >
       <div ref={cursorRef} className="cursor" />
-      <Navbar cartCount={cart.item_count || 0} />
+      <Navbar />
 
       <div
         style={{

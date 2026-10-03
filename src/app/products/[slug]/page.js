@@ -4,6 +4,7 @@ import { useRouter, useParams } from "next/navigation";
 import Link from "next/link";
 import Navbar from "../../components/Navbar";
 import { authFetch } from "@/lib/apiClient";
+import { useCart } from "@/context/CartContext";
 
 // FIX (Bug 2): Updated BASE_URL from Railway → Render
 const BASE_URL = "https://weforeverdrip.fly.dev";
@@ -23,6 +24,7 @@ const imageMap = {
 
 export default function ProductDetailPage() {
   const router = useRouter();
+  const { setCartCount } = useCart();
   const params = useParams();
   const slug = params.slug;
   const cursorRef = useRef(null);
@@ -113,6 +115,10 @@ export default function ProductDetailPage() {
         throw new Error("Failed to add to cart");
       }
 
+      // The API returns the updated cart: use its item_count for the navbar badge
+      const updatedCart = await response.json();
+      setCartCount(updatedCart.item_count || 0);
+
       setCartMessage({ type: "success", text: "Added to cart!" });
       setTimeout(() => setCartMessage(null), 2000);
     } catch (err) {
@@ -131,7 +137,7 @@ export default function ProductDetailPage() {
       }}
     >
       <div ref={cursorRef} className="cursor" />
-      <Navbar cartCount={0} />
+      <Navbar />
 
       {/* LOADING STATE */}
       {loading && (

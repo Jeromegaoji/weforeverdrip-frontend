@@ -1,7 +1,10 @@
 "use client";
 import Link from "next/link";
+import { useCart } from "@/context/CartContext";
 
-export default function Navbar({ cartCount = 0 }) {
+export default function Navbar() {
+  const { cartCount } = useCart();
+
   return (
     <nav
       style={{

@@ -1,5 +1,6 @@
 import { Bebas_Neue, Barlow_Condensed, Barlow } from 'next/font/google'
 import './globals.css'
+import { CartProvider } from '@/context/CartContext'
 
 const bebasNeue = Bebas_Neue({
   weight: '400',
@@ -28,7 +29,7 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en">
       <body className={`${bebasNeue.variable} ${barlowCondensed.variable} ${barlow.variable}`}>
-        {children}
+        <CartProvider>{children}</CartProvider>
       </body>
     </html>
   )

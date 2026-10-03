@@ -2,11 +2,13 @@
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import Navbar from "../components/Navbar";
+import { useCart } from "@/context/CartContext";
 
 const BASE_URL = "https://weforeverdrip.fly.dev";
 
 export default function AuthPage() {
   const router = useRouter();
+  const { refreshCart } = useCart();
   const cursorRef = useRef(null);
 
   const [isLogin, setIsLogin] = useState(true);
@@ -68,6 +70,7 @@ export default function AuthPage() {
       const data = await response.json();
       localStorage.setItem("wfd_access", data.access);
       localStorage.setItem("wfd_refresh", data.refresh);
+      refreshCart(); // update the navbar badge right away
       setSuccess("Login successful! Redirecting...");
       setTimeout(() => {
         router.push("/products");
@@ -125,6 +128,7 @@ export default function AuthPage() {
       const data = await response.json();
       localStorage.setItem("wfd_access", data.access);
       localStorage.setItem("wfd_refresh", data.refresh);
+      refreshCart(); // update the navbar badge right away
       setSuccess("Account created! Redirecting...");
       setTimeout(() => {
         router.push("/products");
@@ -145,7 +149,7 @@ export default function AuthPage() {
       }}
     >
       <div ref={cursorRef} className="cursor" />
-      <Navbar cartCount={0} />
+      <Navbar />
 
       <div
         style={{

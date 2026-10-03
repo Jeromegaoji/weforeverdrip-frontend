@@ -19,10 +19,15 @@ function getStoredToken(key) {
   return localStorage.getItem(key);
 }
 
-function clearTokensAndRedirect() {
+function clearTokens() {
   if (typeof window === "undefined") return;
   localStorage.removeItem("wfd_access");
   localStorage.removeItem("wfd_refresh");
+}
+
+function clearTokensAndRedirect() {
+  if (typeof window === "undefined") return;
+  clearTokens();
   window.location.href = "/auth";
 }
 
@@ -73,10 +78,20 @@ async function refreshAccessToken() {
  *
  * @param {string} path - API path starting with "/", e.g. "/api/v1/orders/cart/"
  * @param {RequestInit} options - same options object you'd pass to fetch()
+ * @param {{ redirectOnFail?: boolean }} behaviour - optional. By default
+ *    (redirectOnFail: true) a dead session sends the user to /auth, which
+ *    is right for pages that need a login (cart, checkout). Pass
+ *    { redirectOnFail: false } for background calls on PUBLIC pages (like
+ *    the navbar cart count): the tokens are still cleared and an error is
+ *    thrown, but the visitor is NOT bounced away from the page.
  * @returns {Promise<Response>} - a normal Response, same as fetch() returns.
  *    Call .json() / check .ok on it exactly like you already do.
  */
-export async function authFetch(path, options = {}) {
+export async function authFetch(
+  path,
+  options = {},
+  { redirectOnFail = true } = {},
+) {
   const buildHeaders = (token) => ({
     ...options.headers,
     ...(token ? { Authorization: `Bearer ${token}` } : {}),
@@ -111,12 +126,14 @@ export async function authFetch(path, options = {}) {
       } catch {
         // Refresh token is also dead (7-day window expired) — this is
         // the ONLY case that should actually log someone out.
-        clearTokensAndRedirect();
+        if (redirectOnFail) clearTokensAndRedirect();
+        else clearTokens();
         throw new Error("Session expired. Please log in again.");
       }
     } else {
       // 401 for some other reason (e.g. never logged in at all).
-      clearTokensAndRedirect();
+      if (redirectOnFail) clearTokensAndRedirect();
+      else clearTokens();
       throw new Error("Not authenticated. Please log in again.");
     }
   }
