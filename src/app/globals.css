@@ -41,4 +41,34 @@ body {
   .product-image-box {
     height: 350px !important;
   }
+  .checkout-grid {
+    grid-template-columns: 1fr !important;
+    gap: 2.5rem !important;
+  }
+  .checkout-pad {
+    padding-left: 1.25rem !important;
+    padding-right: 1.25rem !important;
+  }
+  .cart-pad {
+    padding-left: 1.25rem !important;
+    padding-right: 1.25rem !important;
+  }
+  .cart-grid {
+    grid-template-columns: 1fr !important;
+    gap: 2.5rem !important;
+  }
+  .cart-item {
+    grid-template-columns: 1fr !important;
+    gap: 0.75rem !important;
+  }
+  /* On phones show each item as: name and price, then size/colour, then quantity */
+  .cart-item > :nth-child(1) {
+    order: 2;
+  }
+  .cart-item > :nth-child(2) {
+    order: 1;
+  }
+  .cart-item > :nth-child(3) {
+    order: 3;
+  }
 }

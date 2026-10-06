@@ -137,7 +137,7 @@ export default function CartPage() {
         <div ref={cursorRef} className="cursor" />
         <Navbar />
 
-        <div
+        <div className="cart-pad"
           style={{
             paddingTop: "8rem",
             paddingLeft: "3rem",
@@ -206,7 +206,7 @@ export default function CartPage() {
         <div ref={cursorRef} className="cursor" />
         <Navbar />
 
-        <div
+        <div className="cart-pad"
           style={{
             paddingTop: "8rem",
             paddingLeft: "3rem",
@@ -243,7 +243,7 @@ export default function CartPage() {
         <div ref={cursorRef} className="cursor" />
         <Navbar />
 
-        <div
+        <div className="cart-pad"
           style={{
             paddingTop: "8rem",
             paddingLeft: "3rem",
@@ -277,7 +277,7 @@ export default function CartPage() {
         <div ref={cursorRef} className="cursor" />
         <Navbar />
 
-        <div
+        <div className="cart-pad"
           style={{
             paddingTop: "8rem",
             paddingLeft: "3rem",
@@ -345,7 +345,7 @@ export default function CartPage() {
       <div ref={cursorRef} className="cursor" />
       <Navbar />
 
-      <div
+      <div className="cart-pad"
         style={{
           paddingTop: "8rem",
           paddingLeft: "3rem",
@@ -366,6 +366,7 @@ export default function CartPage() {
         </h1>
 
         <div
+          className="cart-grid"
           style={{
             display: "grid",
             gridTemplateColumns: "2fr 1fr",
@@ -377,6 +378,7 @@ export default function CartPage() {
             {cart.items.map((item) => (
               <div
                 key={item.id}
+                className="cart-item"
                 style={{
                   display: "grid",
                   gridTemplateColumns: "auto 1fr auto",
@@ -606,8 +608,13 @@ export default function CartPage() {
               </div>
             </div>
 
-            <button
+            <Link
+              href="/checkout"
               style={{
+                display: "block",
+                boxSizing: "border-box",
+                textAlign: "center",
+                textDecoration: "none",
                 width: "100%",
                 background: "var(--red)",
                 color: "var(--cream)",
@@ -628,7 +635,7 @@ export default function CartPage() {
               }}
             >
               Proceed to Checkout
-            </button>
+            </Link>
 
             <Link
               href="/products"
